@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>curlpass - password generator</title>
+  <style>
+    .password {
+      font-family: monospace;
+      padding: 1em;
+      margin: 1em;
+      border: 1px solid #999;
+      text-align: center;
+    }
+    input[type=text]{
+     border-radius: 1em;
+    }
+    
+input[type=text]:focus {
+     outline: none;
+     border: 1px solid #a0d18c;
+}
+  </style>
+</head>
+<script>
+  function copyTextField() {
+
+  // get the dom element we need for copying
+  var copyText = document.getElementById("password");
+
+  // select it
+  copyText.select();
+  copyText.setSelectionRange(0, 12); // it was suggested to do this for mobile
+
+   // copy the text
+  navigator.clipboard.writeText(copyText.value);
+
+} 
+</script>
+<body>
+  <span style="font-size: 2rem; font-family: monospace;">curlpass.com</span> <br>
+  <span style="font-size: 1rem; font-family: sans-serif">Generate passwords in the terminal and browser</span> <br>
+  <br>
+  <span>Here's your password:</span>&emsp;<input type="text" value="{{ . }}" id="password" class="password" alt="{{ . }}" title="{{ . }}" /><button onclick="copyTextField()">COPY</button>
+  <p>Need more?</p>
+  <a href="/help">curlpass.com/help</a>&emsp;- help
+</body>
+</html>
