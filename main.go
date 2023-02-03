@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"html/template"
+	"math/big"
 	"net/http"
 	"strings"
 )
@@ -77,25 +78,23 @@ func generatePassword(passwordType string) string {
 	// slice for our password
 	password := make([]byte, 12)
 
-	// thanks to hedae from distrotube general matrix for suggesting the use
-	// of crypto/rand instead of math/rand
+	// define the max
+	max := big.NewInt(int64(len(characters)))
 
-	// slice for random bytes
-	randBytes := make([]byte, 1)
-
-	// read our randbytes and return errors
-	_, err := rand.Read(randBytes)
-	if err != nil {
-		return err.Error()
-	}
-
-	// range through our selected bytes
+	// loop through the password
 	for i := range password {
-		password[i] = characters[int(randBytes[0])%len(characters)]
-		_, err = rand.Read(randBytes)
+
+		// store our random int, return errors
+		ourInt, err := rand.Int(rand.Reader, max)
 		if err != nil {
 			return err.Error()
 		}
+
+		// convert the big int to int64
+		ourInt64 := ourInt.Int64()
+
+		// make the chosen character this character
+		password[i] = characters[ourInt64]
 	}
 
 	// return the password
