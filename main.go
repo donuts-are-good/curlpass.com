@@ -1,12 +1,11 @@
 package main
 
 import (
+	"crypto/rand"
 	"fmt"
 	"html/template"
-	"math/rand"
 	"net/http"
 	"strings"
-	"time"
 )
 
 const helpText = `
@@ -36,7 +35,7 @@ Thank you for your support!
 `
 
 func generatePassword(passwordType string) string {
-	
+
 	// make a string variable for the character set
 	var characters string
 
@@ -75,16 +74,33 @@ func generatePassword(passwordType string) string {
 		characters = "1234567890qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
 	}
 
-	// by default we're generating a password of 12 characters
+	// slice for our password
 	password := make([]byte, 12)
 
-	// loop through the password slice and set it to a random char from our chars
-	for i := range password {
-		password[i] = characters[rand.Intn(len(characters))]
+	// thanks to hedae from distrotube general matrix for suggesting the use
+	// of crypto/rand instead of math/rand
+
+	// slice for random bytes
+	randBytes := make([]byte, 1)
+
+	// read our randbytes and return errors
+	_, err := rand.Read(randBytes)
+	if err != nil {
+		return err.Error()
 	}
 
-	// return the whole thing
+	// range through our selected bytes
+	for i := range password {
+		password[i] = characters[int(randBytes[0])%len(characters)]
+		_, err = rand.Read(randBytes)
+		if err != nil {
+			return err.Error()
+		}
+	}
+
+	// return the password
 	return string(password)
+
 }
 
 func passwordHandler(w http.ResponseWriter, r *http.Request) {
@@ -150,11 +166,6 @@ func helpHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func main() {
-
-	// seed for a true random
-	// we don't have to do this anymore, but we don't know
-	// if the user compiling this code has the most recent go.
-	rand.Seed(time.Now().UnixNano())
 
 	// define the password handler
 	http.HandleFunc("/", passwordHandler)
